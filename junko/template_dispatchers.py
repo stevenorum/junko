@@ -15,8 +15,9 @@ def default_params():
     params["base_url"] = SUNYATA_CONFIG.base_url
     params["base_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.base_url)
     params["base_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.base_url)
-    params["static_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.static_base_path)
-    params["static_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.static_base_path)
+    if SUNYATA_CONFIG.get("static_base_path", None):
+        params["static_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.static_base_path)
+        params["static_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.static_base_path)
     return params
 
 def load_template(template_name, params={}, include_default_params=True, **kwargs):
