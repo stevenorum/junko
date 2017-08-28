@@ -1,8 +1,20 @@
 #!/usr/bin/env python3
 
+from functools import update_wrapper
 from junko import logster
+from junko import kson as json
 from junko.random_utils import to_object, minify_json
 from traceback import format_exc
+
+def api_call(function):
+    def newfunc(request):
+        body = request.get("body",None) if request.get("body",None) else None
+        kwargs = json.loads(body) if body else {}
+        if request.get("queryStringParameters", None):
+            kwargs.update(request["queryStringParameters"])
+        return function(raw_request=request, **kwargs)
+    update_wrapper(newfunc, function)
+    return newfunc
 
 def log_calls(function):
     def newfunc(*args, **kwargs):
@@ -21,6 +33,7 @@ def log_calls(function):
         except:
             logster.error("Unable to properly log call {event}".format(event=str(args)))
         return function(*args, **kwargs)
+    update_wrapper(newfunc, function)
     return newfunc
 
 def log_trace(function):
@@ -30,6 +43,7 @@ def log_trace(function):
             return function(*args, **kwargs)
         finally:
             logster.trace("Leaving function {name}".format(name=function.__name__), trace_depth=1)
+    update_wrapper(newfunc, function)
     return newfunc
 
 def log_errors(function):
@@ -40,6 +54,7 @@ def log_errors(function):
             logster.error("Error encountered:")
             logster.error(format_exc())
             raise
+    update_wrapper(newfunc, function)
     return newfunc
 
 def redirect_errors(destination):
@@ -50,4 +65,5 @@ def redirect_errors(destination):
             except:
                 return destination
         return newfunc2
+    update_wrapper(newfunc, function)
     return newfunc1

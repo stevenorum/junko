@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 from setuptools import setup
+import tenzing
 
 setup(name='junko',
-      version='0.1.0',
+      version='0.1.1',
       description='APIGateway-Lambda website framework.',
       author='Steve Norum',
       author_email='stevenorum@gmail.com',
@@ -11,4 +12,6 @@ setup(name='junko',
       packages=['junko'],
       package_dir={'junko': 'junko'},
       test_suite='tests',
-     )
+      cmdclass = {'upload':tenzing.Upload}
+)
+

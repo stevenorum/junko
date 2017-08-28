@@ -50,6 +50,8 @@ def load(*args, **kwargs):
     return json.load(*args, **kwargs)
 
 def loads(*args, **kwargs):
+    if isinstance(args[0], dict):
+        return args[0]
     return json.loads(*args, **kwargs)
 
 def loadf(filename, *args, **kwargs):

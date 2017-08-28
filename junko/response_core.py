@@ -14,11 +14,12 @@ def unrelativize(url):
 def static_path(filename):
     return "https://s3.amazonaws.com/" + SUNYATA_CONFIG.static_file_bucket + add_leading_slash(filename)
 
-def make_response(body, code=200, headers={"Content-Type": "text/html"}):
+def make_response(body, code=200, headers={"Content-Type": "text/html"}, base64=False):
     return {
         "body": body,
         "statusCode": code,
-        "headers": headers
+        "headers": headers,
+        "isBase64Encoded": base64
     }
 
 def respond_with(response):

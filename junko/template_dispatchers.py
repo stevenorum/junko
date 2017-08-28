@@ -11,8 +11,7 @@ import re
 env = Environment(loader=FileSystemLoader(SUNYATA_CONFIG.template_dir))
 
 def default_params():
-    params = {}
-    params["base_url"] = SUNYATA_CONFIG.base_url
+    params = dict(SUNYATA_CONFIG)
     params["base_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.base_url)
     params["base_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.base_url)
     if SUNYATA_CONFIG.get("static_base_path", None):
@@ -31,7 +30,11 @@ def get_template_handler(template_name, param_loader=None, **kwargs):
     def handle_template(request):
         params = default_params()
         if param_loader:
-            params.update(param_loader(request))
+            try:
+                params.update(param_loader(request, params=params))
+            except:
+                # This was the original version, so fall back to it if necessary.
+                params.update(param_loader(request))
             pass
         return load_template(template_name=template_name, params=params, **kwargs)
     return handle_template
