@@ -1,20 +1,47 @@
 #!/usr/bin/env python3
 
+import base64
 from functools import update_wrapper
 from junko import logster
 from junko import kson as json
 from junko.random_utils import to_object, minify_json
 from traceback import format_exc
 
-def api_call(function):
-    def newfunc(request):
-        body = request.get("body",None) if request.get("body",None) else None
-        kwargs = json.loads(body) if body else {}
-        if request.get("queryStringParameters", None):
-            kwargs.update(request["queryStringParameters"])
-        return function(raw_request=request, **kwargs)
-    update_wrapper(newfunc, function)
-    return newfunc
+# def api_call(function):
+#     def newfunc(request):
+#         body = request.get("body",None)
+#         body = body if body else {}
+#         kwargs = json.loads(body) if isinstance(body, str) else body
+#         if request.get("queryStringParameters", None):
+#             kwargs.update(request["queryStringParameters"])
+#         return function(raw_request=request, **kwargs)
+#     update_wrapper(newfunc, function)
+#     return newfunc
+
+def api_call(*args, **kwargs):
+    if args:
+        return _api_call()(args[0])
+    return _api_call(**kwargs)
+
+def _api_call(unpack_body=True):
+    def wrapper(function):
+        def newfunc(request):
+            user_params = request.get("queryStringParameters", None)
+            user_params = user_params if user_params else {}
+            body = request.get("body", None)
+            params = {"_request":request}
+            if body:
+                if request.get("isBase64Encoded", False):
+                    body = base64.b64decode(body.encode("utf-8"))
+                if unpack_body:
+                    body = body.decode("utf-8") if isinstance(body, bytes) else body
+                    user_params.update(json.loads(body))
+            params["_body"] = body
+            params.update(user_params)
+            return function(**params)
+        update_wrapper(newfunc, function)
+        return newfunc
+    return wrapper
 
 def log_calls(function):
     def newfunc(*args, **kwargs):

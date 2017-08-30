@@ -21,6 +21,8 @@ def sunyata_config():
         _sunyata_config["template_dir"] = os.path.join(os.environ['LAMBDA_TASK_ROOT'], "templates")
         if not _sunyata_config["base_url"].startswith("http"):
             _sunyata_config["base_url"] = "https://" + _sunyata_config["base_url"]
+        _sunyata_config["base_url_w_slash"] = add_trailing_slash(_sunyata_config["base_url"])
+        _sunyata_config["base_url_wo_slash"] = strip_trailing_slash(_sunyata_config["base_url"])
         pass
     return json.blob(_sunyata_config)
 
