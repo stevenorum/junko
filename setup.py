@@ -12,6 +12,7 @@ setup(name='junko',
       packages=['junko'],
       package_dir={'junko': 'junko'},
       test_suite='tests',
-      cmdclass = {'upload':tenzing.Upload}
+      cmdclass = {'upload':tenzing.Upload},
+      install_requires = ['jinja2','calvin']
 )
 
