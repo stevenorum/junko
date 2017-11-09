@@ -4,6 +4,7 @@ from junko import kson as json
 from junko import logster
 from junko.random_utils import *
 import os
+import traceback
 
 _sunyata_config = {}
 
@@ -26,4 +27,9 @@ def sunyata_config():
         pass
     return json.blob(_sunyata_config)
 
-SUNYATA_CONFIG = sunyata_config()
+
+SUNYATA_CONFIG = {}
+try:
+    SUNYATA_CONFIG = sunyata_config()
+except:
+    pass

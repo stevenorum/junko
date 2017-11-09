@@ -8,15 +8,17 @@ from junko.dispatch import Link
 from jinja2 import Environment, FileSystemLoader
 import re
 
-env = Environment(loader=FileSystemLoader(SUNYATA_CONFIG.template_dir))
+env = Environment(loader=FileSystemLoader('/var/task/templates/'))
 
 def default_params():
-    params = dict(SUNYATA_CONFIG)
-    params["base_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.base_url)
-    params["base_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.base_url)
-    if SUNYATA_CONFIG.get("static_base_path", None):
-        params["static_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.static_base_path)
-        params["static_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.static_base_path)
+    params = {}
+    if SUNYATA_CONFIG:
+        params = dict(SUNYATA_CONFIG)
+        params["base_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.base_url)
+        params["base_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.base_url)
+        if SUNYATA_CONFIG.get("static_base_path", None):
+            params["static_url_w_slash"] = add_trailing_slash(SUNYATA_CONFIG.static_base_path)
+            params["static_url_wo_slash"] = strip_trailing_slash(SUNYATA_CONFIG.static_base_path)
     return params
 
 def load_template(template_name, params={}, include_default_params=True, **kwargs):

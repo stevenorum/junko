@@ -37,7 +37,7 @@ class Link(Dispatcher):
     pass
 
 class DispatchChain(Dispatcher):
-    def __init__(self, *dispatchers, debug_name="DispatchChain"):
+    def __init__(self, debug_name="DispatchChain", *dispatchers):
         self.dispatchers = [d for d in dispatchers]
         self.debug_name = debug_name
         pass

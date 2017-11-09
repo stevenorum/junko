@@ -5,6 +5,10 @@ from functools import update_wrapper
 from junko import logster
 from junko import kson as json
 from junko.random_utils import to_object, minify_json
+from junko.exceptions import HttpError
+from junko.response_core import make_response
+
+import logging
 from traceback import format_exc
 
 # def api_call(function):
@@ -26,11 +30,14 @@ def api_call(*args, **kwargs):
 def _api_call(unpack_body=True):
     def wrapper(function):
         def newfunc(request):
+            print(json.dumps(request, indent=2, sort_keys=True))
             user_params = request.get("queryStringParameters", None)
             user_params = user_params if user_params else {}
             body = request.get("body", None)
             params = {"_request":request}
             if body:
+                print("Body:")
+                print(body)
                 if request.get("isBase64Encoded", False):
                     body = base64.b64decode(body.encode("utf-8"))
                 if unpack_body:
@@ -38,7 +45,13 @@ def _api_call(unpack_body=True):
                     user_params.update(json.loads(body))
             params["_body"] = body
             params.update(user_params)
-            return function(**params)
+            try:
+                return function(**params)
+            except HttpError as e:
+                return e.response()
+            except Exception as e:
+                logging.error(format_exc())
+                return make_response(body='Internal server error.', code=500)
         update_wrapper(newfunc, function)
         return newfunc
     return wrapper
