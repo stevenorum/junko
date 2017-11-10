@@ -4,7 +4,7 @@ from setuptools import setup
 import tenzing
 
 setup(name='junko',
-      version='1.0.0',
+      version='1.0.1',
       description='APIGateway-Lambda website framework.',
       author='Steve Norum',
       author_email='stevenorum@gmail.com',

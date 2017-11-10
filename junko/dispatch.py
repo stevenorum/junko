@@ -13,10 +13,10 @@ class Dispatcher(object):
     pass
 
 class Link(Dispatcher):
+    path = None
     def __init__(self, path, handler=None, debug_name="Link"):
-        # Yes, this is painfully janky.  I'll improve it later, maybe.
-        self.path = path if "lower" in dir(path) else path.pattern
-        self.compiled_path = path if "match" in dir(path) else re.compile(path)
+        self.path = path if isinstance(path, str) else path.pattern
+        self.compiled_path = re.compile(path) if isinstance(path, str) else path
         self.handle = handler if handler else self._default_handler
         self.debug_name = debug_name
         pass
@@ -32,18 +32,23 @@ class Link(Dispatcher):
         return None
 
     def debug_info(self):
-        return "{} ({})".format(self.path, self.debug_name)
+        return "{} ({})".format(getattr(self,'path'), self.debug_name)
     
     pass
 
 class DispatchChain(Dispatcher):
-    def __init__(self, debug_name="DispatchChain", *dispatchers):
+    def __init__(self, *dispatchers, **kwargs):
+        self.path = None
+        self.debug_name = kwargs.get('debug_name', "DispatchChain")
+        if dispatchers and isinstance(dispatchers[0], str):
+            self.debug_name = dispatchers[0]
+            dispatchers = dispatchers[1:]
         self.dispatchers = [d for d in dispatchers]
-        self.debug_name = debug_name
         pass
 
     def add_link(self, dispatcher):
-        self.remove_link(dispatcher.path)
+        if hasattr(dispatcher, 'path'):
+            self.remove_link(dispatcher.path)
         self.dispatchers.append(dispatcher)
         pass
 
@@ -56,7 +61,7 @@ class DispatchChain(Dispatcher):
     def remove_link(self, path):
         for i in range(len(self.dispatchers)):
             dispatcher = self.dispatchers[i]
-            if path == dispatcher.path:
+            if path == getattr(dispatcher, 'path'):
                 del self.dispatchers[i]
                 return
             pass
